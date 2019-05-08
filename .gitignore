@@ -4,5 +4,6 @@
 # node.js
 node_modules
 # graphql-prisma
+.env-cmdrc
 config
 dist

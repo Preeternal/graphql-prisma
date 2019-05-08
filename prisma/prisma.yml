@@ -1,6 +1,6 @@
 endpoint: ${env:PRISMA_ENDPOINT}
 datamodel: datamodel.prisma
-secret: superpuperpassword
+secret: ${env:PRISMA_SECRET}
 
 generate:
   - generator: flow-client
