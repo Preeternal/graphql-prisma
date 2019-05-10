@@ -1,5 +1,6 @@
 import "cross-fetch/polyfill";
 import ApolloBoost, { gql } from "apollo-boost";
+import prisma from "../src/prisma";
 
 jest.setTimeout(30000);
 
@@ -21,4 +22,6 @@ test("Should create a new user", async () => {
   const response = await client.mutate({
     mutation: createUser
   });
+  const exists = await prisma.exists.User({ id: response.data.createUser.user.id });
+  expect(exists).toBe(true);
 });
