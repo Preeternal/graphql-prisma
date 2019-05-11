@@ -7,7 +7,7 @@
     "start": "node dist/index.js",
     "heroku-postbuild": "babel src --out-dir dist --copy-files",
     "dev": "env-cmd -e dev nodemon src/index.js --ext js,graphql --exec babel-node",
-    "test": "env-cmd -e test jest --watch",
+    "test": "env-cmd -e test jest --watch --runInBand",
     "get-schema": "graphql get-schema -p prisma --dotenv config/dev.env"
   },
   "jest": {
