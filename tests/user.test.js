@@ -1,7 +1,7 @@
 import "cross-fetch/polyfill";
 import { gql } from "apollo-boost";
 import prisma from "../src/prisma";
-import seedDatabase from "./utils/seedDatabase";
+import seedDatabase, { userOne } from "./utils/seedDatabase";
 import getClient from "./utils/getClient";
 
 jest.setTimeout(30000);
@@ -64,4 +64,41 @@ test("Should not signup user with short password", async () => {
     }
   `;
   await expect(client.mutate({ mutation: createUser })).rejects.toThrow();
+});
+
+test("Should fetch user profile", async () => {
+  const client = getClient(userOne.jwt);
+  const getProfile = gql`
+    query {
+      me {
+        id
+        name
+        email
+        password
+      }
+    }
+  `;
+  const { data } = await client.query({ query: getProfile });
+  expect(data.me.id).toBe(userOne.user.id);
+  expect(data.me.name).toBe(userOne.user.name);
+  expect(data.me.email).toBe(userOne.user.email);
+});
+
+test("Should fetch myPosts", async () => {
+  const client = getClient(userOne.jwt);
+  const myPosts = gql`
+    query {
+      myPosts {
+        id
+        title
+        body
+        published
+      }
+    }
+  `;
+  const { data } = await client.query({ query: myPosts });
+  expect(data.myPosts.length).toBe(2);
+
+  // expect(data.me.name).toBe(userOne.user.name);
+  // expect(data.me.email).toBe(userOne.user.email);
 });
