@@ -3,7 +3,7 @@ import ApolloBoost, { gql } from "apollo-boost";
 import bcrypt from "bcryptjs";
 import prisma from "../src/prisma";
 
-// jest.setTimeout(30000);
+jest.setTimeout(30000);
 
 const client = new ApolloBoost({
   uri: "http://localhost:4000"
@@ -61,4 +61,64 @@ test("Should create a new user", async () => {
   });
   const exists = await prisma.exists.User({ id: response.data.createUser.user.id });
   expect(exists).toBe(true);
+});
+
+test("Should expose public author profile", async () => {
+  const getUsers = gql`
+    query {
+      users {
+        id
+        name
+        email
+      }
+    }
+  `;
+  const response = await client.query({ query: getUsers });
+  expect(response.data.users.length).toBe(1);
+  expect(response.data.users[0].email).toBe(null);
+  expect(response.data.users[0].name).toBe("Jen");
+});
+
+test("Should expose published posts", async () => {
+  const getPosts = gql`
+    query {
+      posts {
+        id
+        title
+        body
+        published
+        author {
+          name
+        }
+        comments {
+          text
+        }
+      }
+    }
+  `;
+  const response = await client.query({ query: getPosts });
+  expect(response.data.posts.length).toBe(1);
+  expect(response.data.posts[0].published).toBe(true);
+});
+
+test("Should not login with bad credentials", async () => {
+  const login = gql`
+    mutation {
+      login(data: { email: "preeternal@mail.com", password: "1234567" }) {
+        token
+      }
+    }
+  `;
+  await expect(client.mutate({ mutation: login })).rejects.toThrow();
+});
+
+test("Should not signup user with short password", async () => {
+  const createUser = gql`
+    mutation {
+      createUser(data: { name: "new user", email: "new@mail.com", password: "12345" }) {
+        token
+      }
+    }
+  `;
+  await expect(client.mutate({ mutation: createUser })).rejects.toThrow();
 });
