@@ -98,7 +98,4 @@ test("Should fetch myPosts", async () => {
   `;
   const { data } = await client.query({ query: myPosts });
   expect(data.myPosts.length).toBe(2);
-
-  // expect(data.me.name).toBe(userOne.user.name);
-  // expect(data.me.email).toBe(userOne.user.email);
 });
