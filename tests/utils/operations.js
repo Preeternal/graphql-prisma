@@ -103,6 +103,26 @@ const deletePost = gql`
   }
 `;
 
+const createComment = gql`
+  mutation($data: CreateCommentInput!) {
+    createComment(data: $data) {
+      id
+      text
+      author {
+        id
+      }
+    }
+  }
+`;
+
+const deleteComment = gql`
+  mutation($id: ID!) {
+    deleteComment(id: $id) {
+      id
+    }
+  }
+`;
+
 export {
   createUser,
   login,
@@ -112,5 +132,7 @@ export {
   myPosts,
   updatePost,
   createPost,
-  deletePost
+  deletePost,
+  createComment,
+  deleteComment
 };
