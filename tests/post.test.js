@@ -33,6 +33,22 @@ test("Should expose published posts", async () => {
   expect(response.data.posts[0].published).toBe(true);
 });
 
+test("Should fetch myPosts", async () => {
+  const client = getClient(userOne.jwt);
+  const myPosts = gql`
+    query {
+      myPosts {
+        id
+        title
+        body
+        published
+      }
+    }
+  `;
+  const { data } = await client.query({ query: myPosts });
+  expect(data.myPosts.length).toBe(2);
+});
+
 test("Should be able to update own post", async () => {
   const client = getClient(userOne.jwt);
   const updatePost = gql`
