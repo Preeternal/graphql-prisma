@@ -9,9 +9,14 @@ import seedDatabase, {
   commentTwo
 } from "./utils/seedDatabase";
 import getClient from "./utils/getClient";
-import { createComment, deleteComment } from "./utils/operations";
+import {
+  createComment,
+  deleteComment,
+  subscribeToComments,
+  subscribeToPost
+} from "./utils/operations";
 
-jest.setTimeout(30000);
+jest.setTimeout(300000);
 
 const client = getClient();
 
@@ -58,4 +63,28 @@ test("Should create a new comment by first user", async () => {
   const comments = await prisma.query.comments();
   expect(data.createComment.text).toBe("Comment by the Jen");
   expect(comments.length).toBe(3);
+});
+
+test("Should subscribe to comments for a post", async done => {
+  const variables = {
+    postId: postOne.post.id
+  };
+  client.subscribe({ query: subscribeToComments, variables }).subscribe({
+    next(response) {
+      expect(response.data.comment.mutation).toBe("DELETED");
+      done();
+    }
+  });
+  // change a comment
+  await prisma.mutation.deleteComment({ where: { id: commentOne.comment.id } });
+});
+
+test("Should subscribe to changes for published posts", async done => {
+  client.subscribe({ query: subscribeToPost }).subscribe({
+    next(response) {
+      expect(response.data.post.mutation).toBe("DELETED");
+      done();
+    }
+  });
+  await prisma.mutation.deletePost({ where: { id: postOne.post.id } });
 });
